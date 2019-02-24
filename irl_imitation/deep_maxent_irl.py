@@ -167,8 +167,8 @@ def deep_maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
     
 
   rewards = nn_r.get_rewards(feat_map)
-  # return sigmoid(normalize(rewards))
-  return normalize(rewards)
+  #return normalize(rewards, -1, 1)
+  return rewards
 
 
 

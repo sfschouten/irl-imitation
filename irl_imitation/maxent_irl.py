@@ -71,7 +71,7 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
   N_STATES, _, N_ACTIONS = np.shape(P_a)
 
   # init parameters
-  theta = np.random.uniform(size=(feat_map.shape[1],))
+  theta = np.random.uniform(low = -1, high = 1, size=(feat_map.shape[1],))
 
   # calc feature expectations
   feat_exp = np.zeros([feat_map.shape[1]])
@@ -98,11 +98,15 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
     # compute gradients
     grad = feat_exp - feat_map.T.dot(svf)
 
+    print(grad)
+
     # update params
     theta += lr * grad
 
   rewards = np.dot(feat_map, theta)
-  # return sigmoid(normalize(rewards))
-  return normalize(rewards)
+  print('learned theta: {}'.format(theta))
+
+  #return normalize(rewards, -1, 1)
+  return rewards
 
 
