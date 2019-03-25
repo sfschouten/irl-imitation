@@ -1,7 +1,10 @@
 .DS_Store
+*~
+*.swp
 *.pyc
 tmp/*
 *logs/
+build/
 papers/*
 cartpole/cartpole-model/history.p
 cartpole/cartpole-model/memory.p
