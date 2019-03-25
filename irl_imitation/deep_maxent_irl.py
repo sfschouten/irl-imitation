@@ -10,7 +10,6 @@ from utils import *
 
 class DeepIRLFC:
 
-
   def __init__(self, n_input, lr, n_h1=400, n_h2=300, l2=10, name='deep_irl_fc'):
     self.n_input = n_input
     self.lr = lr
@@ -35,7 +34,6 @@ class DeepIRLFC:
     self.optimize = self.optimizer.apply_gradients(zip(self.grad_theta, self.theta))
     self.sess.run(tf.global_variables_initializer())
 
-
   def _build_network(self, name):
     input_s = tf.placeholder(tf.float32, [None, self.n_input])
     with tf.variable_scope(name):
@@ -47,15 +45,12 @@ class DeepIRLFC:
     theta = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES, scope=name)
     return input_s, reward, theta
 
-
   def get_theta(self):
     return self.sess.run(self.theta)
-
 
   def get_rewards(self, states):
     rewards = self.sess.run(self.reward, feed_dict={self.input_s: states})
     return rewards
-
 
   def apply_grads(self, feat_map, grad_r):
     grad_r = np.reshape(grad_r, [-1, 1])
@@ -63,7 +58,9 @@ class DeepIRLFC:
     _, grad_theta, l2_loss, grad_norms = self.sess.run([self.optimize, self.grad_theta, self.l2_loss, self.grad_norms], 
       feed_dict={self.grad_r: grad_r, self.input_s: feat_map})
     return grad_theta, l2_loss, grad_norms
-
+    
+  def finished(self):
+      self.sess.close()
 
 
 def compute_state_visition_freq(P_a, gamma, trajs, policy, deterministic=True):
@@ -140,7 +137,9 @@ def deep_maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
   N_STATES, _, N_ACTIONS = np.shape(P_a)
 
   # init nn model
-  nn_r = DeepIRLFC(feat_map.shape[1], lr, 3, 3)
+  import datetime  
+  nn_name = datetime.datetime.now().strftime("%Y_%m_%d_%H_%M_%S_%f")
+  nn_r = DeepIRLFC(feat_map.shape[1], lr, 3, 3, name=nn_name)
 
   # find state visitation frequencies using demonstrations
   mu_D = demo_svf(trajs, N_STATES)
@@ -167,6 +166,8 @@ def deep_maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
     
 
   rewards = nn_r.get_rewards(feat_map)
+  nn_r.finished()
+
   #return normalize(rewards, -1, 1)
   return rewards
 

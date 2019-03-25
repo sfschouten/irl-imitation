@@ -51,7 +51,7 @@ def compute_state_visition_freq(P_a, gamma, trajs, policy, deterministic=True):
 
 
 
-def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
+def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters, ret_theta=False):
   """
   Maximum Entropy Inverse Reinforcement Learning (Maxent IRL)
 
@@ -72,6 +72,7 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
 
   # init parameters
   theta = np.random.uniform(low = -1, high = 1, size=(feat_map.shape[1],))
+  print('random prior: {}'.format(theta))
 
   # calc feature expectations
   feat_exp = np.zeros([feat_map.shape[1]])
@@ -82,15 +83,12 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
 
   # training
   for iteration in range(n_iters):
-  
-    if iteration % (n_iters/20) == 0:
-      print 'iteration: {}/{}'.format(iteration, n_iters)
-    
+              
     # compute reward function
     rewards = np.dot(feat_map, theta)
 
     # compute policy
-    _, policy = value_iteration.value_iteration(P_a, rewards, gamma, error=0.01, deterministic=False)
+    _, policy = value_iteration.value_iteration(P_a, rewards, gamma, deterministic=False)
     
     # compute state visition frequences
     svf = compute_state_visition_freq(P_a, gamma, trajs, policy, deterministic=False)
@@ -98,15 +96,18 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters):
     # compute gradients
     grad = feat_exp - feat_map.T.dot(svf)
 
-    print(grad)
+    if iteration % (n_iters/20) == 0:
+        print 'iteration: {}/{}, grad={}'.format(iteration, n_iters, grad)
 
     # update params
     theta += lr * grad
 
-  rewards = np.dot(feat_map, theta)
-  print('learned theta: {}'.format(theta))
+  print(theta)
 
-  #return normalize(rewards, -1, 1)
-  return rewards
+  #rewards = np.dot(feat_map, theta)
+  if ret_theta:
+      return theta
+  else:
+      return rewards
 
 
