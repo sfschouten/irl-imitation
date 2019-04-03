@@ -17,7 +17,7 @@ class DeepIRLFC:
     self.n_h2 = n_h2
     self.name = name
 
-    self.sess = tf.Session()
+    self.sess = tf.Session() #tf.Session(config=tf.ConfigProto(log_device_placement=True))
     self.input_s, self.reward, self.theta = self._build_network(self.name)
     self.optimizer = tf.train.GradientDescentOptimizer(lr)
     

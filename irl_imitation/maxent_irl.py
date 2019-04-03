@@ -51,7 +51,7 @@ def compute_state_visition_freq(P_a, gamma, trajs, policy, deterministic=True):
 
 
 
-def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters, ret_theta=False):
+def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters, ret_theta=False, **kwargs):
   """
   Maximum Entropy Inverse Reinforcement Learning (Maxent IRL)
 
@@ -71,7 +71,7 @@ def maxent_irl(feat_map, P_a, gamma, trajs, lr, n_iters, ret_theta=False):
   N_STATES, _, N_ACTIONS = np.shape(P_a)
 
   # init parameters
-  theta = np.random.uniform(low = -1, high = 1, size=(feat_map.shape[1],))
+  theta = np.random.uniform(low = -1, high = 1, size=(feat_map.shape[1],)) if 'prior' not in kwargs else kwargs['prior']
   print('random prior: {}'.format(theta))
 
   # calc feature expectations
